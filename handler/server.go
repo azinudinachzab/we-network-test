@@ -2,9 +2,9 @@ package handler
 
 import (
 	"fmt"
-	"github.com/SawitProRecruitment/UserService/constant"
 	"time"
 
+	"github.com/SawitProRecruitment/UserService/constant"
 	"github.com/SawitProRecruitment/UserService/repository"
 	"github.com/bwmarrin/snowflake"
 	"github.com/dgrijalva/jwt-go"
@@ -19,20 +19,17 @@ type Server struct {
 
 type NewServerOptions struct {
 	Repository repository.RepositoryInterface
+	Snowflake   *snowflake.Node
+	JWTCreate  func(ttl time.Duration, content interface{}) (string, error)
+	JWTVal     func(token string) (interface{}, error)
 }
 
 func NewServer(opts NewServerOptions) *Server {
-	val := time.Now().Unix()
-	val = (val % 999) + 1
-	s, err := snowflake.NewNode(val)
-	if err != nil {
-		panic(err)
-	}
 	return &Server{
 		Repository: opts.Repository,
-		Snowflake: s,
-		JWTCreate: JWTIssue,
-		JWTVal:    JWTValidate,
+		Snowflake: opts.Snowflake,
+		JWTCreate: opts.JWTCreate,
+		JWTVal:    opts.JWTVal,
 	}
 }
 
